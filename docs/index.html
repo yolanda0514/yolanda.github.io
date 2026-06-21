@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+  <!-- ==================== 基础元信息 ==================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="薛月朗 - Marketing Specialist 个人求职官网">
+  <title>薛月朗 | Marketing Specialist</title>
+
+  <!-- ==================== 引入 Inter 字体 ==================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- ==================== 引入 Tailwind CSS v3（CDN 方式） ==================== -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Tailwind 自定义配置：扩展主题色与字体
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            // 柔和蓝色调主色系
+            brand: {
+              50:  '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            },
+          },
+          boxShadow: {
+            // 卡片专用柔和阴影
+            card: '0 4px 20px rgba(59, 130, 246, 0.08)',
+            'card-hover': '0 8px 30px rgba(59, 130, 246, 0.15)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* ==================== 全局样式 ==================== */
+
+    /* 浅网格纹理背景 */
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #f8fafc;
+      background-image:
+        linear-gradient(rgba(59, 130, 246, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* 导航栏链接高亮样式（由 JS 动态切换 active 类） */
+    .nav-link {
+      position: relative;
+      transition: color 0.3s ease;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: #2563eb;
+      border-radius: 2px;
+      transition: width 0.3s ease, left 0.3s ease;
+    }
+    .nav-link.active {
+      color: #2563eb;
+      font-weight: 600;
+    }
+    .nav-link.active::after {
+      width: 100%;
+      left: 0;
+    }
+
+    /* ==================== 模态框动画 ==================== */
+    /* 遮罩层淡入淡出 */
+    .modal-overlay {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    /* 模态框内容缩放 + 淡入 */
+    .modal-content {
+      opacity: 0;
+      transform: scale(0.95) translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .modal-overlay.show .modal-content {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    /* ==================== 页面板块入场动画 ==================== */
+    .section-animate {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .section-animate.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* 技能标签 hover 微动效 */
+    .skill-tag {
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+    .skill-tag:hover {
+      transform: translateY(-2px);
+    }
+
+    /* 工作经历卡片 hover 效果 */
+    .work-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .work-card:hover {
+      transform: translateY(-4px);
+    }
+
+    /* 模态框内 Markdown 风格标题样式 */
+    .modal-body h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1e40af;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .modal-body h3:first-child {
+      margin-top: 0;
+    }
+    .modal-body p {
+      color: #475569;
+      line-height: 1.75;
+      font-size: 0.925rem;
+    }
+  </style>
+</head>
+
+<body class="text-slate-700 antialiased">
+
+  <!-- ==================== 顶部固定导航栏 ==================== -->
+  <header id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-brand-100 shadow-sm transition-shadow duration-300">
+    <nav class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- 左侧 Logo / 姓名缩写 -->
+        <a href="#about" class="text-lg font-bold text-brand-600 tracking-tight hover:text-brand-700 transition-colors duration-300">
+          My Resume
+        </a>
+
+        <!-- 桌面端导航链接 -->
+        <ul class="hidden md:flex items-center gap-8">
+          <li><a href="#about"      class="nav-link text-sm text-slate-600 hover:text-brand-600" data-section="about">关于我</a></li>
+          <li><a href="#education"  class="nav-link text-sm text-slate-600 hover:text-brand-600" data-section="education">教育背景</a></li>
+          <li><a href="#experience" class="nav-link text-sm text-slate-600 hover:text-brand-600" data-section="experience">工作经历</a></li>
+          <li><a href="#skills"     class="nav-link text-sm text-slate-600 hover:text-brand-600" data-section="skills">技能特长</a></li>
+          <li><a href="#learning"   class="nav-link text-sm text-slate-600 hover:text-brand-600" data-section="learning">学习与探索</a></li>
+        </ul>
+
+        <!-- 移动端汉堡菜单按钮 -->
+        <button id="menu-toggle" class="md:hidden p-2 rounded-lg text-slate-600 hover:bg-brand-50 hover:text-brand-600 transition-colors duration-300" aria-label="打开菜单">
+          <!-- 汉堡图标 SVG -->
+          <svg id="icon-menu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <!-- 关闭图标 SVG（默认隐藏） -->
+          <svg id="icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- 移动端下拉菜单（默认隐藏） -->
+      <div id="mobile-menu" class="md:hidden hidden pb-4">
+        <ul class="flex flex-col gap-2">
+          <li><a href="#about"      class="nav-link block px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 transition-colors duration-300" data-section="about">关于我</a></li>
+          <li><a href="#education"  class="nav-link block px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 transition-colors duration-300" data-section="education">教育背景</a></li>
+          <li><a href="#experience" class="nav-link block px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 transition-colors duration-300" data-section="experience">工作经历</a></li>
+          <li><a href="#skills"     class="nav-link block px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 transition-colors duration-300" data-section="skills">技能特长</a></li>
+          <li><a href="#learning"   class="nav-link block px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 transition-colors duration-300" data-section="learning">学习与探索</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ==================== 主内容区域 ==================== -->
+  <main class="pt-16">
+
+    <!-- ========== 板块 1：关于我 ========== -->
+    <section id="about" class="min-h-screen flex items-center py-20 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-6xl mx-auto w-full section-animate">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+          <!-- 左侧：标题 + 介绍 + 按钮 -->
+          <div class="order-2 lg:order-1">
+            <h1 class="text-4xl sm:text-5xl font-bold text-slate-800 leading-tight mb-3">
+              Hi, 我是薛月朗
+            </h1>
+            <p class="text-xl text-brand-500 font-medium mb-6">Marketing Specialist</p>
+            <p class="text-slate-600 leading-relaxed mb-8 text-base sm:text-lg">
+              拥有2年跨境电商市场营销及项目管理经验，热衷于解决业务痛点、搭建标准化业务系统。致力于挖掘基于数据的创新性增长解决方案。
+            </p>
+            <!-- 操作按钮组 -->
+            <div class="flex flex-wrap gap-4">
+              <!-- 下载简历：点击打开全屏 PDF 预览模态框 -->
+              <button id="btn-resume"
+                      class="inline-flex items-center gap-2 px-6 py-3 bg-brand-600 text-white rounded-xl font-medium shadow-md hover:bg-brand-700 hover:shadow-lg transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                </svg>
+                下载简历
+              </button>
+              <!-- 联系我：点击打开模态框 -->
+              <button id="btn-contact"
+                      class="inline-flex items-center gap-2 px-6 py-3 bg-white text-brand-600 border-2 border-brand-200 rounded-xl font-medium hover:bg-brand-50 hover:border-brand-300 transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                联系我
+              </button>
+            </div>
+          </div>
+
+          <!-- 右侧：个人头像（占位图，后续请替换为真实照片） -->
+          <div class="order-1 lg:order-2 flex justify-center">
+            <div class="relative">
+              <div class="absolute inset-0 bg-brand-200 rounded-3xl rotate-3 scale-105 opacity-40"></div>
+              <img
+                src="profile-photo.png"
+                alt="薛月朗个人头像（占位图，请替换）"
+                class="relative w-64 h-64 sm:w-80 sm:h-80 object-cover rounded-3xl shadow-card border-4 border-white"
+              >
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 板块 2：教育背景 ========== -->
+    <section id="education" class="py-20 px-4 sm:px-6 lg:px-8 bg-white/60">
+      <div class="max-w-6xl mx-auto section-animate">
+        <h2 class="text-3xl font-bold text-slate-800 text-center mb-12">教育背景</h2>
+
+        <!-- 两个并排卡片，移动端堆叠 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+          <!-- 本科卡片：华东师范大学 -->
+          <div class="bg-white rounded-2xl shadow-card hover:shadow-card-hover p-6 flex items-center gap-6 transition-shadow duration-300">
+            <div class="flex-1">
+              <p class="text-lg font-bold text-slate-800 mb-1">华东师范大学</p>
+              <p class="text-slate-500">汉语言文学专业</p>
+              <p class="text-slate-500 mt-1">2018.09 - 2022.06</p>
+              <span class="inline-block mt-3 px-3 py-1 bg-brand-50 text-brand-600 text-xs font-medium rounded-full">本科</span>
+            </div>
+            <!-- 校徽占位图（请替换为华东师范大学校徽） -->
+            <img
+              src="ecnu-logo.png"
+              alt="华东师范大学校徽（占位图，请替换）"
+              class="w-16 h-16 rounded-xl object-cover border border-brand-100"
+            >
+          </div>
+
+          <!-- 硕士卡片：UCL -->
+          <div class="bg-white rounded-2xl shadow-card hover:shadow-card-hover p-6 flex items-center gap-6 transition-shadow duration-300">
+            <div class="flex-1">
+              <p class="text-lg font-bold text-slate-800 mb-1">University College London</p>
+              <p class="text-slate-500">Education</p>
+              <p class="text-slate-500 mt-1">2022.09 - 2023.12</p>
+              <span class="inline-block mt-3 px-3 py-1 bg-brand-50 text-brand-600 text-xs font-medium rounded-full">硕士</span>
+            </div>
+            <!-- 校徽占位图（请替换为 UCL 校徽） -->
+            <img
+              src="ucl-logo.png"
+              alt="UCL校徽（占位图，请替换）"
+              class="w-16 h-16 rounded-xl object-cover border border-brand-100"
+            >
+          </div>
+
+        </div>
+
+        <!-- 英语水平说明 -->
+        <p class="text-center text-slate-500 text-sm">
+          英语水平：雅思7.0分，商务沟通熟练
+        </p>
+      </div>
+    </section>
+
+    <!-- ========== 板块 3：工作经历 ========== -->
+    <section id="experience" class="py-20 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-6xl mx-auto section-animate">
+        <h2 class="text-3xl font-bold text-slate-800 text-center mb-12">工作经历</h2>
+
+        <!-- 三卡片网格：桌面端每行两个，移动端每行一个 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- ===== 卡片 1：海外广告投放 ===== -->
+          <div class="work-card bg-white rounded-2xl shadow-card hover:shadow-card-hover p-6 flex flex-col">
+            <!-- 公司 Logo 占位图（请替换为拼多多 Logo） -->
+            <div class="flex justify-center mb-4">
+              <img src="pdd-logo.png" alt="拼多多 Logo（占位图，请替换）" class="w-14 h-14 rounded-xl object-cover">
+            </div>
+            <h3 class="text-center font-bold text-slate-800 mb-1">拼多多</h3>
+            <p class="text-center text-brand-500 text-sm font-medium mb-1">海外广告投放 · 全职</p>
+            <p class="text-center text-slate-400 text-xs mb-4">2025.06 - 2026.04</p>
+            <ul class="text-sm text-slate-600 space-y-2 flex-1 list-disc list-inside">
+              <li><strong>投放统筹</strong>：负责Temu法国站Meta/Google全链路投放，统筹账户素材优化</li>
+              <li><strong>数据优化</strong>：搭建投放监控体系，A/B测试提升转化，操盘海外大促增收</li>
+              <li><strong>渠道深耕</strong>：研究竞品打法打造本土化优势，对接海外媒体挖掘业务增量</li>
+            </ul>
+            <div class="mt-4 text-right">
+              <button class="btn-detail text-brand-600 text-sm font-medium hover:text-brand-700 hover:underline transition-colors duration-300" data-modal="modal-exp-1">
+                查看详情 →
+              </button>
+            </div>
+          </div>
+
+          <!-- ===== 卡片 2：海外KOL运营 ===== -->
+          <div class="work-card bg-white rounded-2xl shadow-card hover:shadow-card-hover p-6 flex flex-col">
+            <div class="flex justify-center mb-4">
+              <img src="pdd-logo.png" alt="拼多多 Logo（占位图，请替换）" class="w-14 h-14 rounded-xl object-cover">
+            </div>
+            <h3 class="text-center font-bold text-slate-800 mb-1">拼多多</h3>
+            <p class="text-center text-brand-500 text-sm font-medium mb-1">海外KOL运营 · 全职</p>
+            <p class="text-center text-slate-400 text-xs mb-4">2024.02 - 2025.06</p>
+            <ul class="text-sm text-slate-600 space-y-2 flex-1 list-disc list-inside">
+              <li><strong>达人布局</strong>：制定多国达人合作策略，搭建分层达人矩阵实现规模化投放</li>
+              <li><strong>内容操盘</strong>：输出差异化内容方案，落地摩洛哥开站项目打造爆款拉新</li>
+              <li><strong>策略迭代</strong>：搭建数据复盘体系，优化投放结构提升整体营销营收效益</li>
+            </ul>
+            <div class="mt-4 text-right">
+              <button class="btn-detail text-brand-600 text-sm font-medium hover:text-brand-700 hover:underline transition-colors duration-300" data-modal="modal-exp-2">
+                查看详情 →
+              </button>
+            </div>
+          </div>
+
+          <!-- ===== 卡片 3：飞书商业化实习 ===== -->
+          <div class="work-card bg-white rounded-2xl shadow-card hover:shadow-card-hover p-6 flex flex-col">
+            <div class="flex justify-center mb-4">
+              <img src="bytedance-logo.png" alt="字节跳动 Logo（占位图，请替换）" class="w-14 h-14 rounded-xl object-cover">
+            </div>
+            <h3 class="text-center font-bold text-slate-800 mb-1">字节跳动</h3>
+            <p class="text-center text-brand-500 text-sm font-medium mb-1">飞书商业化实习</p>
+            <p class="text-center text-slate-400 text-xs mb-4">2023.09 - 2024.02</p>
+            <ul class="text-sm text-slate-600 space-y-2 flex-1 list-disc list-inside">
+              <li><strong>活动策划</strong>：主导线下营销活动全流程落地，触达千余家企业挖掘线索</li>
+              <li><strong>商机挖掘</strong>：联动业务团队深耕重点行业，筛选定级高价值客户</li>
+              <li><strong>数据复盘</strong>：搭建数据监测体系，拆解核心指标输出优化方案</li>
+            </ul>
+            <div class="mt-4 text-right">
+              <button class="btn-detail text-brand-600 text-sm font-medium hover:text-brand-700 hover:underline transition-colors duration-300" data-modal="modal-exp-3">
+                查看详情 →
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 板块 4：技能特长 ========== -->
+    <section id="skills" class="py-20 px-4 sm:px-6 lg:px-8 bg-white/60">
+      <div class="max-w-6xl mx-auto section-animate">
+        <h2 class="text-3xl font-bold text-slate-800 text-center mb-12">技能特长</h2>
+
+        <!-- 标签云：桌面端每行 3 个，共 2 行，左对齐 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 justify-items-start">
+          <span class="skill-tag px-5 py-2.5 bg-brand-50 text-brand-700 rounded-full text-sm font-medium shadow-sm hover:bg-brand-100 hover:shadow-md cursor-default">海外效果广告全链路投放</span>
+          <span class="skill-tag px-5 py-2.5 bg-brand-50 text-brand-700 rounded-full text-sm font-medium shadow-sm hover:bg-brand-100 hover:shadow-md cursor-default">全球化KOL达人矩阵运营</span>
+          <span class="skill-tag px-5 py-2.5 bg-brand-50 text-brand-700 rounded-full text-sm font-medium shadow-sm hover:bg-brand-100 hover:shadow-md cursor-default">跨境电商增长策略操盘</span>
+          <span class="skill-tag px-5 py-2.5 bg-brand-50 text-brand-700 rounded-full text-sm font-medium shadow-sm hover:bg-brand-100 hover:shadow-md cursor-default">营销数据复盘与指标迭代</span>
+          <span class="skill-tag px-5 py-2.5 bg-brand-50 text-brand-700 rounded-full text-sm font-medium shadow-sm hover:bg-brand-100 hover:shadow-md cursor-default">AI落地应用</span>
+          <span class="skill-tag px-5 py-2.5 bg-brand-50 text-brand-700 rounded-full text-sm font-medium shadow-sm hover:bg-brand-100 hover:shadow-md cursor-default">跨部门项目统筹与资源协调</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 板块 5：学习与探索 ========== -->
+    <section id="learning" class="py-20 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto section-animate">
+        <h2 class="text-3xl font-bold text-slate-800 text-center mb-8">学习与探索</h2>
+        <div class="bg-white rounded-2xl shadow-card p-8 sm:p-10 text-left">
+          <p class="text-slate-600 leading-relaxed text-base sm:text-lg">
+            持续深耕跨境增长、全域营销打法，跟进AI营销、自动化投放前沿模式，落地AI匹配工具等个人项目，将新技术转化为业务增长实操能力。
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== 页脚 ==================== -->
+  <footer class="py-8 text-center text-slate-400 text-sm border-t border-brand-100 bg-white/40">
+    <p>© 2026 薛月朗 · Marketing Specialist</p>
+  </footer>
+
+
+  <!-- ==================== 模态框区域 ==================== -->
+
+  <!-- 简历 PDF 全屏预览模态框 -->
+  <div id="modal-resume" class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm">
+    <div class="modal-content flex flex-col w-full h-[calc(100vh-2rem)] sm:h-[calc(100vh-3rem)] bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <!-- 顶部工具栏：左侧下载，右侧关闭 -->
+      <div class="flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-brand-100 flex-shrink-0">
+        <!-- 下载 PDF 按钮 -->
+        <a id="resume-pdf-download"
+           href="resume.pdf"
+           download="薛月朗-简历.pdf"
+           class="inline-flex items-center gap-2 px-6 py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors duration-300">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          下载PDF
+        </a>
+        <!-- 关闭按钮（样式与联系我弹窗一致） -->
+        <button class="btn-close-modal px-6 py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors duration-300">
+          关闭
+        </button>
+      </div>
+      <!-- PDF 预览区域：使用浏览器原生 PDF 查看器，支持缩放、翻页、打印 -->
+      <div class="flex-1 min-h-0 bg-slate-100">
+        <!--
+          ========== 【请替换】简历 PDF 文件路径 ==========
+          将下方 iframe 的 src 改为你的 PDF 文件路径，例如 "./my-resume.pdf"
+          同时记得同步修改上方「下载PDF」按钮的 href 属性，以及 JS 中的 RESUME_PDF_PATH 常量
+        -->
+        <iframe
+          id="resume-pdf-viewer"
+          src="resume.pdf"
+          title="简历 PDF 预览"
+          class="w-full h-full border-0"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- 联系我模态框 -->
+  <div id="modal-contact" class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative">
+      <h3 class="text-xl font-bold text-slate-800 mb-6 text-center">联系方式</h3>
+      <div class="space-y-4 mb-8">
+        <div class="flex items-center gap-3 p-3 bg-brand-50 rounded-xl">
+          <svg class="w-5 h-5 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <div>
+            <p class="text-xs text-slate-400">邮箱</p>
+            <a href="mailto:xueyuelang0514@163.com" class="text-brand-600 hover:underline">xueyuelang0514@163.com</a>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-brand-50 rounded-xl">
+          <svg class="w-5 h-5 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          <div>
+            <p class="text-xs text-slate-400">微信</p>
+            <p class="text-slate-700">19921315570（手机同号）</p>
+          </div>
+        </div>
+      </div>
+      <button class="btn-close-modal w-full py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors duration-300">
+        关闭
+      </button>
+    </div>
+  </div>
+
+  <!-- 工作经历详情模态框 1：海外广告投放 -->
+  <div id="modal-exp-1" class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+      <div class="p-6 sm:p-8 border-b border-brand-100 flex-shrink-0">
+        <h3 class="text-lg sm:text-xl font-bold text-slate-800">上海寻梦信息技术有限公司(拼多多) - 海外广告投放</h3>
+      </div>
+      <div class="modal-body p-6 sm:p-8 overflow-y-auto flex-1">
+        <h3>区域投放规划与预算管控</h3>
+        <p>负责Temu 法国站Facebook､Discovery 信息流广告全流程投放,统筹账户搭建､人群定向､素材测试､数据优化全链路;制定区域投放策略与预算分配方案,对投放规模､ROI､用户增长､GMV 目标负责,独立落地Meta､Google 渠道投放方案,以效果广告驱动海外高价值用户规模化增长｡</p>
+        <h3>数据监控与效果迭代优化</h3>
+        <p>搭建完善的渠道数据监控体系,熟悉广告归因逻辑,实时监控广告账户数据,快速定位流量与转化异常问题,动态调整出价､定向､预算等投放策略;通过深度数据分析挖掘投放优化空间,常态化推进素材样式､人群包､出价策略A/B 测试,联动团队优化落地页承接能力,持续提升广告点击率､转化率等核心指标｡</p>
+        <h3>节庆大促整合投放与业绩突破</h3>
+        <p>针对万圣节､黑五､圣诞节制定专项加投策略,迭代优质素材与测试方案,优化类目素材风格;实现类目GMV 同比提升30%､广告ROI 提升25%､素材点击率提升28%､转化率提升32%｡沉淀可复用投放模板,支撑区域业务规模化增长｡</p>
+        <h3>渠道合作与竞品深耕</h3>
+        <p>深度调研海外竞品获客模式､投放打法与创意策略,吸收优化并创新本土化获客形式,打造差异化投放优势;对接Meta和Google 等海外主流媒体渠道,联动广告代理挖掘流量红利,深度沉淀渠道投放能力;实时跟踪海外媒体政策､行业动态与市场趋势,结合业务场景探索前沿增长手段,拓展新增业务增长点｡</p>
+      </div>
+      <div class="p-6 sm:p-8 border-t border-brand-100 flex-shrink-0">
+        <button class="btn-close-modal w-full py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors duration-300">
+          关闭
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 工作经历详情模态框 2：海外KOL运营 -->
+  <div id="modal-exp-2" class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+      <div class="p-6 sm:p-8 border-b border-brand-100 flex-shrink-0">
+        <h3 class="text-lg sm:text-xl font-bold text-slate-800">上海寻梦信息技术有限公司(拼多多) - 海外KOL运营</h3>
+      </div>
+      <div class="modal-body p-6 sm:p-8 overflow-y-auto flex-1">
+        <h3>区域达人策略与生态资源搭建</h3>
+        <p>围绕品牌增长目标与产品推广需求,制定美国､西班牙､法国､罗马尼亚等国达人全周期合作策略,精准挖掘YouTube､Instagram､TikTok 平台各目标垂类达人资源,构建分层达人矩阵;累计筛选合作400+中腰部及以上(10 万粉+)､600+中小体量(1-5 万粉)优质达人,实现达人资源精准触达与深度广度双重覆盖,推动达人和内容规模化增长｡</p>
+        <h3>内容营销与整合营销落地</h3>
+        <p>结合海外不同国家国情､社媒平台生态及垂类特性,开展基于产品细节､价格定位､社媒活动等方向的市场调研与竞品全方位分析,输出竞品分析报告与差异化内容营销投放策略;深挖产品核心亮点,独立把控KOL 合作内容质量,优化合作brief､制定社媒内容发布计划,打造适配不同平台的长短视频差异化内容｡
+主导Temu 摩洛哥开站项目,打造爆款解说类视频,通过达人折扣码与流量投流实现二次曝光,达成日激活4 万+新用户､日拉新收益9 万+美元､订单转化率提升970%+,高效完成流量闭环与转化目标｡</p>
+        <h3>数据复盘与策略迭代</h3>
+        <p>建立达人营销全链路数据监测体系,实时追踪进站率､加购率､购买率､激活数､订单收益等核心转化指标,定期开展数据分析与效果复盘;基于复盘结果迭代达人投放策略与内容方向,重点加码高ROI 达人类型,协调品牌､达人､投放等多方资源,优化内容发布流程,提升达人内容产出与投放效率,持续拉动整体营销收益规模上涨｡</p>
+      </div>
+      <div class="p-6 sm:p-8 border-t border-brand-100 flex-shrink-0">
+        <button class="btn-close-modal w-full py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors duration-300">
+          关闭
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 工作经历详情模态框 3：飞书商业化实习 -->
+  <div id="modal-exp-3" class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+      <div class="p-6 sm:p-8 border-b border-brand-100 flex-shrink-0">
+        <h3 class="text-lg sm:text-xl font-bold text-slate-800">北京字节跳动科技有限公司 - 飞书商业化实习</h3>
+      </div>
+      <div class="modal-body p-6 sm:p-8 overflow-y-auto flex-1">
+        <h3>区域整合营销活动策划与落地</h3>
+        <p>围绕飞书东区业务定位与目标客群,主导9 场线下主题峰会､走进企业类活动全流程策划,规划标准化活动方案与执行策略,统筹活动筹备､现场执行与闭环落地;累计触达1200+参会嘉宾､1100+企业,确定160 个商机线索数,以及1312 万元潜在商机价值｡</p>
+        <h3>区域商机挖掘与价值转化</h3>
+        <p>联动商业化团队,聚焦消费电子､汽车产业链核心行业开展商机挖掘和数据挖掘项目,基于合作方多维数据完成潜在客户筛选与定级,累计锁定165 个高价值潜在商机,以数字营销动作支撑东区业务商机转化目标｡</p>
+        <h3>区域行销运营与投放管理</h3>
+        <p>统筹管控飞书东区广告､媒体投放等行销环节,深度调研区域企业用户需求､使用习惯与决策特征,制定精准化推广与投放策略,实现定向引流与精准触达,优化区域营销获客效率｡</p>
+        <h3>数据复盘洞察与策略迭代</h3>
+        <p>参与活动和商机数据监测体系搭建,拆解5 个活动和商机核心数据指标,下钻分析活动效果与商机漏斗薄弱环节,完成周期性归因复盘并输出可落地优化建议,迭代活动运营与商机跟进流程,助力营销效率与商机转化率提升｡</p>
+      </div>
+      <div class="p-6 sm:p-8 border-t border-brand-100 flex-shrink-0">
+        <button class="btn-close-modal w-full py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors duration-300">
+          关闭
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================== JavaScript 交互逻辑 ==================== -->
+  <script>
+    /**
+     * ==========================================
+     *  个人求职官网 - 交互脚本
+     *  功能：导航高亮、平滑滚动、模态框、动画
+     * ==========================================
+     */
+
+    /* ---------- 1. 移动端菜单切换 ---------- */
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu  = document.getElementById('mobile-menu');
+    const iconMenu    = document.getElementById('icon-menu');
+    const iconClose   = document.getElementById('icon-close');
+
+    menuToggle.addEventListener('click', () => {
+      const isOpen = !mobileMenu.classList.contains('hidden');
+      mobileMenu.classList.toggle('hidden');
+      iconMenu.classList.toggle('hidden');
+      iconClose.classList.toggle('hidden');
+    });
+
+    /* ---------- 2. 导航链接平滑滚动 + 关闭移动菜单 ---------- */
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href').slice(1);
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          // 计算偏移量（固定导航栏高度 64px）
+          const offset = 64;
+          const top = targetEl.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({ top, behavior: 'smooth' });
+
+          // 点击后关闭移动端菜单
+          mobileMenu.classList.add('hidden');
+          iconMenu.classList.remove('hidden');
+          iconClose.classList.add('hidden');
+        }
+      });
+    });
+
+    /* ---------- 3. 导航栏当前板块高亮（Intersection Observer） ---------- */
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section[id]');
+
+    const observerOptions = {
+      root: null,
+      // 当板块进入视口中间区域时触发
+      rootMargin: '-40% 0px -40% 0px',
+      threshold: 0,
+    };
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          // 移除所有高亮，再给当前板块对应的链接加上 active
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.dataset.section === id);
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => sectionObserver.observe(section));
+
+    /* ---------- 4. 板块入场动画（滚动到可视区域时淡入） ---------- */
+    const animateObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          animateObserver.unobserve(entry.target); // 只播放一次
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.section-animate').forEach(el => {
+      animateObserver.observe(el);
+    });
+
+    /* ---------- 5. 简历 PDF 路径配置 ---------- */
+    /**
+     * ========== 【请替换】简历 PDF 文件路径 ==========
+     * 将下方路径改为你的 PDF 文件地址，需与模态框内 iframe src 和下载按钮 href 保持一致
+     * 示例：'./my-resume.pdf' 或 'https://example.com/resume.pdf'
+     */
+    const RESUME_PDF_PATH = 'resume.pdf';
+
+    // 页面加载时统一设置 PDF 预览与下载链接
+    const resumePdfViewer   = document.getElementById('resume-pdf-viewer');
+    const resumePdfDownload = document.getElementById('resume-pdf-download');
+    if (resumePdfViewer)   resumePdfViewer.src = RESUME_PDF_PATH;
+    if (resumePdfDownload) resumePdfDownload.href = RESUME_PDF_PATH;
+
+    /* ---------- 6. 模态框通用开关逻辑 ---------- */
+    /**
+     * 打开指定模态框
+     * @param {string} modalId - 模态框元素的 id
+     */
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      modal.classList.add('show');
+      // 禁止背景滚动
+      document.body.style.overflow = 'hidden';
+      // 打开简历预览时刷新 iframe，确保显示最新 PDF
+      if (modalId === 'modal-resume' && resumePdfViewer) {
+        resumePdfViewer.src = RESUME_PDF_PATH;
+      }
+    }
+
+    /**
+     * 关闭指定模态框
+     * @param {HTMLElement} modal - 模态框 DOM 元素
+     */
+    function closeModal(modal) {
+      modal.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    /**
+     * 关闭所有已打开的模态框
+     */
+    function closeAllModals() {
+      document.querySelectorAll('.modal-overlay.show').forEach(closeModal);
+    }
+
+    // 「下载简历」按钮 → 打开 PDF 全屏预览模态框
+    document.getElementById('btn-resume').addEventListener('click', () => {
+      openModal('modal-resume');
+    });
+
+    // 「联系我」按钮 → 打开联系模态框
+    document.getElementById('btn-contact').addEventListener('click', () => {
+      openModal('modal-contact');
+    });
+
+    // 「查看详情」按钮 → 打开对应工作经历模态框
+    document.querySelectorAll('.btn-detail').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openModal(btn.dataset.modal);
+      });
+    });
+
+    // 所有「关闭」按钮
+    document.querySelectorAll('.btn-close-modal').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeModal(btn.closest('.modal-overlay'));
+      });
+    });
+
+    // 点击模态框背景（遮罩层）关闭
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        // 只有点击遮罩本身（不是内容区域）才关闭
+        if (e.target === overlay) {
+          closeModal(overlay);
+        }
+      });
+    });
+
+    // 按 ESC 键关闭模态框
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAllModals();
+    });
+
+    /* ---------- 7. 导航栏滚动阴影效果 ---------- */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('shadow-md', window.scrollY > 10);
+    }, { passive: true });
+
+    /* ---------- 8. 页面加载完成后，默认高亮第一个导航项 ---------- */
+    window.addEventListener('load', () => {
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.dataset.section === 'about');
+      });
+      // 触发首屏动画
+      document.querySelector('#about .section-animate')?.classList.add('visible');
+    });
+  </script>
+
+</body>
+</html>
